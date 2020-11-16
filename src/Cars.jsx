@@ -1,14 +1,14 @@
 // src/Cars.jsx
 
-import React from 'react';
+import React, { useContext } from 'react';
 import CarsContext from './context/CarsContext';
 import carBlue from './images/carBlue.jpeg';
 import carRed from './images/carRed.jpeg';
 import carYellow from './images/carYellow.jpeg';
 
 function Cars() {
-  const { redCar, blueCar, yellowCar } = context.cars;
-  const { moveCar } = context;
+  const { cars, moveCar } = useContext(CarsContext);
+  const { redCar, blueCar, yellowCar } = cars;
   return (
     <div>
       <div>
@@ -53,7 +53,5 @@ function Cars() {
     </div>
   )
 };
-
-Cars.contextType = CarsContext;
 
 export default Cars;
