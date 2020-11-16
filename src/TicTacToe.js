@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import GameBoard from './GameBoard';
 
-class TicTacToe extends React.Component {
-  static victoryArchivedInLine(gameBoard) {
+function TicTacToe() {
+  const victoryArchivedInLine = (gameBoard) => {
     for (let i = 0; i <= 6; i += 3) {
       if (
         gameBoard[i] === gameBoard[i + 1]
@@ -13,7 +13,7 @@ class TicTacToe extends React.Component {
     return false;
   }
 
-  static victoryArchivedInColumn(gameBoard) {
+  const victoryArchivedInColumn = (gameBoard) => {
     for (let i = 0; i <= 2; i += 1) {
       if (
         gameBoard[i] === gameBoard[i + 3]
@@ -24,7 +24,7 @@ class TicTacToe extends React.Component {
     return false;
   }
 
-  static victoryArchivedInDiagonals(gameBoard) {
+  const victoryArchivedInDiagonals = (gameBoard) => {
     if (gameBoard[4] === 0) return false;
     if (gameBoard[0] === gameBoard[4] && gameBoard[4] === gameBoard[8]) {
       return gameBoard[0];
@@ -34,96 +34,75 @@ class TicTacToe extends React.Component {
     }
     return false;
   }
+  
+  const zeroBoard = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+  const [ activePlayer, setActivePlayer ] = useState(1);
+  const [ gameBoard, setGameBoard ] = useState(zeroBoard);
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      activePlayer: 1,
-      gameBoard: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    };
-
-    this.updateState = this.updateState.bind(this);
-    this.resetGame = this.resetGame.bind(this);
-    this.renderButton = this.renderButton.bind(this);
+  const resetGame = () => {
+    setActivePlayer(1);
+    setGameBoard(zeroBoard);
   }
 
-  resetGame() {
-    this.setState({
-      activePlayer: 1,
-      gameBoard: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    });
-  }
-
-  toggleActivePlayer() {
-    const { activePlayer } = this.state;
+  const toggleActivePlayer = () => {
     if (activePlayer === 1) return 2;
     return 1;
   }
 
-  updateState(cellClicked) {
-    this.setState((state) => {
-      const newState = [...state.gameBoard];
-      let newActivePlayer = state.activePlayer;
+  const updateState = (cellClicked) => {
+    const newState = [...gameBoard];
+    let newActivePlayer = activePlayer;
 
-      if (state.gameBoard[cellClicked] === 0) {
-        newState[cellClicked] = state.activePlayer;
-        newActivePlayer = this.toggleActivePlayer();
-      } else newState[cellClicked] = state.gameBoard[cellClicked];
+    if (gameBoard[cellClicked] === 0) {
+      newState[cellClicked] = activePlayer;
+      newActivePlayer = toggleActivePlayer();
+    } else newState[cellClicked] = gameBoard[cellClicked];
 
-      return {
-        activePlayer: newActivePlayer,
-        gameBoard: newState,
-      };
-    });
+    setActivePlayer(newActivePlayer)
+    setGameBoard(newState)
   }
 
-  victoryArchieved() {
-    const { gameBoard } = this.state;
-
+  const victoryArchieved = () => {
     return (
-      TicTacToe.victoryArchivedInLine(gameBoard)
-      || TicTacToe.victoryArchivedInColumn(gameBoard)
-      || TicTacToe.victoryArchivedInDiagonals(gameBoard)
+      victoryArchivedInLine(gameBoard)
+      || victoryArchivedInColumn(gameBoard)
+      || victoryArchivedInDiagonals(gameBoard)
     );
   }
 
-  renderButton() {
+  const renderButton = () => {
     return (
       <button
         type="button"
-        onClick={this.resetGame}
+        onClick={resetGame}
         data-testid="restart-button"
       >
         Recomeçar Jogo
       </button>
     );
   }
-
-  render() {
-    const { gameBoard } = this.state;
-    const win = this.victoryArchieved();
-    if (!gameBoard.includes(0)) {
-      return (
-        <>
-          {this.renderButton()}
-          <h1>Empate</h1>
-        </>
-      );
-    }
+  const win = victoryArchieved();
+  if (!gameBoard.includes(0)) {
     return (
       <>
-        {this.renderButton()}
-        {(!win)
-          ? (
-            <GameBoard
-              gameState={gameBoard}
-              updateGame={this.updateState}
-            />
-          )
-          : <h1>{`Player ${win === 2 ? 'O' : 'X'} Ganhou`}</h1>}
+        {renderButton()}
+        <h1>Empate</h1>
       </>
     );
   }
+  return (
+    <>
+      {renderButton()}
+      {(!win)
+        ? (
+          <GameBoard
+            gameState={gameBoard}
+            updateGame={updateState}
+          />
+        )
+        : <h1>{`Player ${win === 2 ? 'O' : 'X'} Ganhou`}</h1>}
+    </>
+  );
 }
 
 export default TicTacToe;
